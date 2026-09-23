@@ -7,6 +7,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "DATA"))
 DB_PATH = os.path.abspath(os.path.join(DATA_DIR, "KNOWLEDGE_BASE", "registre_pionniers.json"))
 MAX_PIONNIERS = 10
+MAX_NOM_LENGTH = 50
 
 
 def _get_safe_path(filepath):
@@ -21,6 +22,22 @@ def inscrire_pionnier(nom):
     target_path = _get_safe_path(DB_PATH)
     target_dir = os.path.dirname(target_path)
     os.makedirs(target_dir, exist_ok=True)
+    # Validation des entrées (sécurité & DoS)
+    if not isinstance(nom, str):
+        print("⚠️ ERREUR : Le nom du pionnier doit être une chaîne de caractères.")
+        return False
+
+    nom = nom.strip()
+    if not nom:
+        print("⚠️ ERREUR : Le nom du pionnier ne peut pas être vide.")
+        return False
+
+    if len(nom) > MAX_NOM_LENGTH:
+        print(f"⚠️ ERREUR : Le nom ne doit pas dépasser {MAX_NOM_LENGTH} caractères.")
+        return False
+
+    # Assurer que le dossier parent existe
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
     # Charger la base existante
     pionniers = []
@@ -33,7 +50,7 @@ def inscrire_pionnier(nom):
     # Vérifier la limite
     if len(pionniers) >= MAX_PIONNIERS:
         print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
-        return
+        return False
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
@@ -51,6 +68,7 @@ def inscrire_pionnier(nom):
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (len(pionniers) + 1)}")
+    return True
 
 if __name__ == "__main__":
     nom_saisie = input("Entrez le nom du pionnier : ")

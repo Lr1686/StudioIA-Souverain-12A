@@ -20,6 +20,16 @@ def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     assert entry["nom"] == "Alice"
     assert entry["cle_souveraine"].startswith("ALPHA-")
 
+def test_inscrire_pionnier_empty_name(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    # Attempt registration with empty string and spaces
+    gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ Le nom du pionnier ne peut pas être vide." in captured.out
+    assert not os.path.exists(test_db)
+
 def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"
     monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))

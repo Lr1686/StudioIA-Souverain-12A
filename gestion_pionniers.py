@@ -3,11 +3,25 @@ import os
 import secrets
 import datetime
 
-DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "DATA"))
+DB_PATH = os.path.abspath(os.path.join(DATA_DIR, "KNOWLEDGE_BASE", "registre_pionniers.json"))
 MAX_PIONNIERS = 10
 MAX_NOM_LENGTH = 50
 
+
+def _get_safe_path(filepath):
+    """Ensure the target filepath is safely contained within DATA_DIR."""
+    resolved_path = os.path.abspath(filepath)
+    if not resolved_path.startswith(DATA_DIR + os.sep) and resolved_path != DATA_DIR:
+        raise ValueError("Sécurité: tentative d'accès en dehors du répertoire autorisé.")
+    return resolved_path
+
+
 def inscrire_pionnier(nom):
+    target_path = _get_safe_path(DB_PATH)
+    target_dir = os.path.dirname(target_path)
+    os.makedirs(target_dir, exist_ok=True)
     # Validation des entrées (sécurité & DoS)
     if not isinstance(nom, str):
         print("⚠️ ERREUR : Le nom du pionnier doit être une chaîne de caractères.")
@@ -27,8 +41,8 @@ def inscrire_pionnier(nom):
 
     # Charger la base existante
     pionniers = []
-    if os.path.exists(DB_PATH):
-        with open(DB_PATH, "r") as f:
+    if os.path.exists(target_path):
+        with open(target_path, "r", encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     pionniers.append(json.loads(line))
@@ -48,7 +62,7 @@ def inscrire_pionnier(nom):
     }
 
     # Sauvegarder
-    with open(DB_PATH, "a") as f:
+    with open(target_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
     
     print(f"✅ PIONNIER INSCRIT : {nom}")

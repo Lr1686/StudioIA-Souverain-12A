@@ -5,8 +5,24 @@ import datetime
 
 DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
+MAX_NOM_LENGTH = 100
 
 def inscrire_pionnier(nom):
+    # Security: Validate and sanitize input to prevent injection & DoS
+    if not isinstance(nom, str):
+        nom = str(nom) if nom is not None else ""
+
+    # Strip control characters, newlines, and surrounding whitespace
+    nom = "".join(c for c in nom if c.isprintable()).strip()
+
+    if not nom:
+        print("⚠️ NOM INVALIDE : Le nom ne peut pas être vide.")
+        return
+
+    if len(nom) > MAX_NOM_LENGTH:
+        print(f"⚠️ NOM INVALIDE : Le nom dépasse la limite de {MAX_NOM_LENGTH} caractères.")
+        return
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0

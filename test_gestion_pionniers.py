@@ -35,3 +35,30 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
+
+def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    # Test non-string input
+    gestion_pionniers.inscrire_pionnier(123)
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR DE SÉCURITÉ : Le nom doit être une chaîne de caractères." in captured.out
+
+    # Test empty string input
+    gestion_pionniers.inscrire_pionnier("")
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR DE SÉCURITÉ : Le nom du pionnier ne peut pas être vide." in captured.out
+
+    # Test whitespace-only input
+    gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR DE SÉCURITÉ : Le nom du pionnier ne peut pas être vide." in captured.out
+
+    # Test oversized input (> 100 characters)
+    gestion_pionniers.inscrire_pionnier("A" * 101)
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR DE SÉCURITÉ : Le nom dépasse la longueur maximale de 100 caractères." in captured.out
+
+    # Verify no file was created
+    assert not os.path.exists(test_db)

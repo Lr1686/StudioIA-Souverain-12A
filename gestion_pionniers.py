@@ -7,6 +7,13 @@ DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
 
 def inscrire_pionnier(nom):
+    if nom is None:
+        nom = ""
+    nom = nom.strip()
+    if not nom:
+        print("❌ LE NOM DU PIONNIER NE PEUT PAS ÊTRE VIDE.")
+        return
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0

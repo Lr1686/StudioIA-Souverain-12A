@@ -5,8 +5,25 @@ import datetime
 
 DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
+MAX_NOM_LENGTH = 100
 
 def inscrire_pionnier(nom):
+    # Security: Validate and sanitize input to prevent JSON lines injection and DoS
+    if not isinstance(nom, str):
+        print("⚠️ ERREUR : Le nom doit être une chaîne de caractères.")
+        return
+
+    # Strip newlines to prevent breaking JSON Lines file structure
+    nom_clean = nom.replace("\r", "").replace("\n", " ").strip()
+
+    if not nom_clean:
+        print("⚠️ ERREUR : Le nom du pionnier ne peut pas être vide.")
+        return
+
+    if len(nom_clean) > MAX_NOM_LENGTH:
+        print(f"⚠️ ERREUR : Le nom dépasse la longueur maximale autorisée ({MAX_NOM_LENGTH} caractères).")
+        return
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0
@@ -23,7 +40,7 @@ def inscrire_pionnier(nom):
     token = secrets.token_hex(8).upper()
     nouvel_invite = {
         "id": nb_pionniers + 1,
-        "nom": nom,
+        "nom": nom_clean,
         "cle_souveraine": f"ALPHA-{token}",
         "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
@@ -35,7 +52,7 @@ def inscrire_pionnier(nom):
     with open(DB_PATH, "a") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
     
-    print(f"✅ PIONNIER INSCRIT : {nom}")
+    print(f"✅ PIONNIER INSCRIT : {nom_clean}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 

@@ -7,6 +7,26 @@ DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
 
 def inscrire_pionnier(nom):
+    # Input validation and sanitization
+    if not isinstance(nom, str):
+        print("⚠️ ERREUR : Le nom doit être une chaîne de caractères.")
+        return False
+
+    nom_clean = nom.strip()
+    if not nom_clean:
+        print("⚠️ ERREUR : Le nom ne peut pas être vide.")
+        return False
+
+    if len(nom_clean) > 100:
+        print("⚠️ ERREUR : Le nom ne peut pas dépasser 100 caractères.")
+        return False
+
+    if "\n" in nom_clean or "\r" in nom_clean:
+        print("⚠️ ERREUR : Le nom ne peut pas contenir de sauts de ligne.")
+        return False
+
+    nom = nom_clean
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0
@@ -38,6 +58,7 @@ def inscrire_pionnier(nom):
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
+    return True
 
 if __name__ == "__main__":
     nom_saisie = input("Entrez le nom du pionnier : ")

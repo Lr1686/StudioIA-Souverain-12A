@@ -35,3 +35,20 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
+
+def test_inscrire_pionnier_nom_invalide(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    # Test empty name
+    gestion_pionniers.inscrire_pionnier("")
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
+
+    # Test whitespace-only name
+    gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
+
+    # Verify nothing was written to DB
+    assert not os.path.exists(test_db)

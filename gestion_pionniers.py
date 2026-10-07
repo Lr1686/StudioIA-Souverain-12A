@@ -7,6 +7,24 @@ DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
 
 def inscrire_pionnier(nom):
+    # Validation et assainissement de la saisie
+    if not isinstance(nom, str):
+        print("⚠️ NOM INVALIDE : Le nom doit être une chaîne de caractères.")
+        return
+
+    nom = nom.strip()
+    if not nom:
+        print("⚠️ NOM INVALIDE : Le nom du pionnier ne peut pas être vide.")
+        return
+
+    if len(nom) > 100:
+        print("⚠️ NOM INVALIDE : Le nom ne doit pas dépasser 100 caractères.")
+        return
+
+    if any(ord(c) < 32 for c in nom):
+        print("⚠️ NOM INVALIDE : Les caractères de contrôle et sauts de ligne sont interdits.")
+        return
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0

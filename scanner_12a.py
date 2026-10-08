@@ -6,7 +6,6 @@ def scan_bastion():
     print("--- [ SCANNER DE SOUVERAINETÉ 12_ALPHA ] ---")
     
     # 1. Analyse Matérielle
-    systeme = platform.system()
     version = platform.mac_ver()[0]
     machine = platform.machine()
     
@@ -22,7 +21,7 @@ def scan_bastion():
     print(f"BATAILLON  : MacBook Pro ({machine})")
     print(f"OS VERSION : macOS {version}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
@@ -31,6 +30,9 @@ def scan_bastion():
     
     # Enregistrement automatique dans les logs
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_dir = "DATA/LOGS_SOUVERAINS"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
     with open("DATA/LOGS_SOUVERAINS/session_log.txt", "a") as f:
         f.write(f"[{timestamp}] Scan de souveraineté effectué. État : ALIGNÉ.\n")
 

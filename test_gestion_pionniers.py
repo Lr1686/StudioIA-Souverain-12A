@@ -1,4 +1,3 @@
-import os
 import json
 import gestion_pionniers
 
@@ -35,3 +34,20 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
+
+def test_inscrire_pionnier_validation(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    # Test empty name
+    gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR : Le nom du pionnier est invalide ou vide." in captured.out
+
+    # Test newline injection
+    gestion_pionniers.inscrire_pionnier("Eve\nFake Entry")
+    captured = capsys.readouterr()
+    assert "⚠️ ERREUR : Le nom du pionnier ne peut pas contenir de saut de ligne." in captured.out
+
+    # Ensure no entries were created
+    assert not test_db.exists()

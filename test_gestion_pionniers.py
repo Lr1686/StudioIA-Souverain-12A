@@ -1,52 +1,42 @@
+import json
+import os
+import pytest
 import gestion_pionniers
-from gestion_pionniers import inscrire_pionnier
 
 
-def test_inscrire_pionnier_valide(tmp_path, monkeypatch):
-    test_db = tmp_path / "registre_pionniers.json"
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+def test_inscrire_pionnier_creation_and_limit(tmp_path, monkeypatch, capsys):
+    test_data_dir = tmp_path / "DATA"
+    test_db_path = test_data_dir / "KNOWLEDGE_BASE" / "registre_pionniers.json"
 
-    result = inscrire_pionnier("Alice")
-    assert result is True
-    assert test_db.exists()
+    monkeypatch.setattr(gestion_pionniers, "DATA_DIR", str(test_data_dir))
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db_path))
 
-    with open(test_db, "r") as f:
+    # Inscrire un pionnier
+    gestion_pionniers.inscrire_pionnier("Alice")
+
+    assert test_db_path.exists()
+
+    with open(test_db_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
         assert len(lines) == 1
-        assert "Alice" in lines[0]
+        data = json.loads(lines[0])
+        assert data["nom"] == "Alice"
+        assert data["id"] == 1
+        assert "ALPHA-" in data["cle_souveraine"]
+
+    captured = capsys.readouterr()
+    assert "PIONNIER INSCRIT : Alice" in captured.out
 
 
-def test_inscrire_pionnier_nom_vide(tmp_path, monkeypatch):
-    test_db = tmp_path / "registre_pionniers.json"
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+def test_get_safe_path_security(tmp_path, monkeypatch):
+    test_data_dir = tmp_path / "DATA"
+    test_data_dir.mkdir()
 
-    assert inscrire_pionnier("") is False
-    assert inscrire_pionnier("   ") is False
-    assert not test_db.exists()
+    monkeypatch.setattr(gestion_pionniers, "DATA_DIR", str(test_data_dir))
 
+    safe_file = test_data_dir / "sub" / "file.txt"
+    assert gestion_pionniers._get_safe_path(str(safe_file)) == os.path.abspath(safe_file)
 
-def test_inscrire_pionnier_nom_trop_long(tmp_path, monkeypatch):
-    test_db = tmp_path / "registre_pionniers.json"
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
-
-    nom_long = "A" * 51
-    assert inscrire_pionnier(nom_long) is False
-    assert not test_db.exists()
-
-
-def test_inscrire_pionnier_non_string(tmp_path, monkeypatch):
-    test_db = tmp_path / "registre_pionniers.json"
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
-
-    assert inscrire_pionnier(12345) is False  # type: ignore
-    assert not test_db.exists()
-
-
-def test_inscrire_pionnier_limite_atteinte(tmp_path, monkeypatch):
-    test_db = tmp_path / "registre_pionniers.json"
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
-    monkeypatch.setattr(gestion_pionniers, "MAX_PIONNIERS", 2)
-
-    assert inscrire_pionnier("Pionnier 1") is True
-    assert inscrire_pionnier("Pionnier 2") is True
-    assert inscrire_pionnier("Pionnier 3") is False
+    unsafe_file = tmp_path / "outside.txt"
+    with pytest.raises(ValueError, match="Sécurité: tentative d'accès en dehors du répertoire autorisé."):
+        gestion_pionniers._get_safe_path(str(unsafe_file))

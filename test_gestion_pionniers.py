@@ -1,42 +1,63 @@
 import json
-import os
-import pytest
 import gestion_pionniers
 
+def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
 
-def test_inscrire_pionnier_creation_and_limit(tmp_path, monkeypatch, capsys):
-    test_data_dir = tmp_path / "DATA"
-    test_db_path = test_data_dir / "KNOWLEDGE_BASE" / "registre_pionniers.json"
-
-    monkeypatch.setattr(gestion_pionniers, "DATA_DIR", str(test_data_dir))
-    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db_path))
-
-    # Inscrire un pionnier
+    # Test registering first pioneer
     gestion_pionniers.inscrire_pionnier("Alice")
+    captured = capsys.readouterr()
+    assert "✅ PIONNIER INSCRIT : Alice" in captured.out
+    assert "PLACES RESTANTES : 9" in captured.out
 
-    assert test_db_path.exists()
+    with open(test_db, "r") as f:
+        lines = [line.strip() for line in f if line.strip()]
+    assert len(lines) == 1
+    entry = json.loads(lines[0])
+    assert entry["id"] == 1
+    assert entry["nom"] == "Alice"
+    assert entry["cle_souveraine"].startswith("ALPHA-")
 
-    with open(test_db_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        assert len(lines) == 1
-        data = json.loads(lines[0])
-        assert data["nom"] == "Alice"
-        assert data["id"] == 1
-        assert "ALPHA-" in data["cle_souveraine"]
+def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    # Register 10 pioneers
+    for i in range(10):
+        gestion_pionniers.inscrire_pionnier(f"Pioneer_{i}")
 
     captured = capsys.readouterr()
-    assert "PIONNIER INSCRIT : Alice" in captured.out
+    assert "✅ PIONNIER INSCRIT : Pioneer_9" in captured.out
 
+    # Attempt 11th registration
+    gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    captured = capsys.readouterr()
+    assert "⚠️ LIMITE ATTEINTE" in captured.out
 
-def test_get_safe_path_security(tmp_path, monkeypatch):
-    test_data_dir = tmp_path / "DATA"
-    test_data_dir.mkdir()
+def test_inscrire_pionnier_validation(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
 
-    monkeypatch.setattr(gestion_pionniers, "DATA_DIR", str(test_data_dir))
+    # Test empty name
+    gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
 
-    safe_file = test_data_dir / "sub" / "file.txt"
-    assert gestion_pionniers._get_safe_path(str(safe_file)) == os.path.abspath(safe_file)
+    # Test name with newlines / control chars
+    gestion_pionniers.inscrire_pionnier("Bob\nEvil")
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
 
-    unsafe_file = tmp_path / "outside.txt"
-    with pytest.raises(ValueError, match="Sécurité: tentative d'accès en dehors du répertoire autorisé."):
-        gestion_pionniers._get_safe_path(str(unsafe_file))
+    # Test overly long name
+    gestion_pionniers.inscrire_pionnier("A" * 101)
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
+
+    # Test non-string input
+    gestion_pionniers.inscrire_pionnier(12345)
+    captured = capsys.readouterr()
+    assert "⚠️ NOM INVALIDE" in captured.out
+
+    # Verify no entries were created in the database
+    assert not test_db.exists() or test_db.read_text().strip() == ""

@@ -7,6 +7,11 @@ DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
 
 def inscrire_pionnier(nom):
+    nom_propre = nom.strip() if nom else ""
+    if not nom_propre:
+        print("⚠️ NOM INVALIDE : Le nom du pionnier ne peut pas être vide.")
+        return
+
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
     # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
     nb_pionniers = 0
@@ -23,7 +28,7 @@ def inscrire_pionnier(nom):
     token = secrets.token_hex(8).upper()
     nouvel_invite = {
         "id": nb_pionniers + 1,
-        "nom": nom,
+        "nom": nom_propre,
         "cle_souveraine": f"ALPHA-{token}",
         "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
@@ -35,7 +40,7 @@ def inscrire_pionnier(nom):
     with open(DB_PATH, "a") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
     
-    print(f"✅ PIONNIER INSCRIT : {nom}")
+    print(f"✅ PIONNIER INSCRIT : {nom_propre}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 

@@ -29,13 +29,8 @@ def inscrire_pionnier(nom):
 
     nom = nom_clean
 
-    # Performance Optimization: Count lines directly instead of deserializing each JSON line
-    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
-    nb_pionniers = 0
-    if os.path.exists(DB_PATH):
-        with open(DB_PATH, "r") as f:
-            nb_pionniers = sum(1 for line in f if line.strip())
-    
+    nb_pionniers = compter_pionniers()
+
     # Vérifier la limite
     if nb_pionniers >= MAX_PIONNIERS:
         print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
@@ -65,6 +60,21 @@ def inscrire_pionnier(nom):
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 
+def compter_pionniers():
+    # Performance Optimization: Count lines directly instead of deserializing each JSON line
+    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
+    if os.path.exists(DB_PATH):
+        with open(DB_PATH, "r") as f:
+            return sum(1 for line in f if line.strip())
+    return 0
+
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    print("--- [ REGISTRE DES PIONNIERS ] ---")
+    nb = compter_pionniers()
+    places_restantes = MAX_PIONNIERS - nb
+    if places_restantes <= 0:
+        print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
+    else:
+        print(f"📊 PLACES RESTANTES : {places_restantes}/{MAX_PIONNIERS}")
+        nom_saisie = input("👉 Entrez le nom du pionnier : ")
+        inscrire_pionnier(nom_saisie)

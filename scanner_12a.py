@@ -1,12 +1,12 @@
+import datetime
 import os
 import platform
-import datetime
 
 def scan_bastion():
     print("--- [ SCANNER DE SOUVERAINETÉ 12_ALPHA ] ---")
     
     # 1. Analyse Matérielle
-    systeme = platform.system()
+    # Performance Optimization: Avoid unused platform.system() call which executes unnecessary OS queries.
     version = platform.mac_ver()[0]
     machine = platform.machine()
     
@@ -22,7 +22,7 @@ def scan_bastion():
     print(f"BATAILLON  : MacBook Pro ({machine})")
     print(f"OS VERSION : macOS {version}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
@@ -30,8 +30,14 @@ def scan_bastion():
         print("ÉTAT       : DÉSYNCHRONISATION DÉTECTÉE ⚠️")
     
     # Enregistrement automatique dans les logs
+    log_path = "DATA/LOGS_SOUVERAINS/session_log.txt"
+    # Performance Optimization: Guard directory creation with os.path.exists check.
+    parent_dir = os.path.dirname(log_path)
+    if parent_dir and not os.path.exists(parent_dir):
+        os.makedirs(parent_dir, exist_ok=True)
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("DATA/LOGS_SOUVERAINS/session_log.txt", "a") as f:
+    with open(log_path, "a") as f:
         f.write(f"[{timestamp}] Scan de souveraineté effectué. État : ALIGNÉ.\n")
 
 if __name__ == "__main__":

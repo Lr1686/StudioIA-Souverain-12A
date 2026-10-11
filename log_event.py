@@ -1,9 +1,12 @@
 import datetime
-import json
 import os
 
 def enregistrer_evenement(message):
     log_path = "DATA/LOGS_SOUVERAINS/session_log.txt"
+    log_dir = os.path.dirname(log_path)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     entry = "[" + timestamp + "] " + message + "\n"
     

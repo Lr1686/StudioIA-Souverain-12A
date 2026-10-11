@@ -22,12 +22,16 @@ def scan_bastion():
     print(f"BATAILLON  : MacBook Pro ({machine})")
     print(f"OS VERSION : macOS {version}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
     else:
         print("ÉTAT       : DÉSYNCHRONISATION DÉTECTÉE ⚠️")
+        if not has_git:
+            print("  ↳ Manquant : Dépôt Git non initialisé (.git). Veuillez initialiser git.")
+        if not has_data:
+            print("  ↳ Manquant : Fichier de configuration absent (DATA/config_anastasia.json). Veuillez vérifier la présence du fichier.")
     
     # Enregistrement automatique dans les logs
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

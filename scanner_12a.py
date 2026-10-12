@@ -28,6 +28,10 @@ def scan_bastion():
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
     else:
         print("ÉTAT       : DÉSYNCHRONISATION DÉTECTÉE ⚠️")
+        if not has_git:
+            print("             ❌ Dépôt Git (.git) introuvable")
+        if not has_data:
+            print("             ❌ Fichier de configuration (DATA/config_anastasia.json) introuvable")
     
     # Enregistrement automatique dans les logs
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

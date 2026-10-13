@@ -10,12 +10,18 @@ def scan_bastion():
     version = platform.mac_ver()[0]
     machine = platform.machine()
     
-    # 2. Analyse de l'Espace de Travail
-    fichiers = os.listdir('.')
-    nb_fichiers = len(fichiers)
-    
-    # 3. Vérification des Sceaux
-    has_git = os.path.exists('.git')
+    # 2. Analyse de l'Espace de Travail & Vérification des Sceaux
+    # Performance Optimization: Use os.scandir() iterator instead of os.listdir() to avoid
+    # allocating a full list of filenames in memory (O(1) memory usage) and check for '.git'
+    # during iteration to save a redundant stat system call.
+    nb_fichiers = 0
+    has_git = False
+    with os.scandir('.') as entries:
+        for entry in entries:
+            nb_fichiers += 1
+            if entry.name == '.git':
+                has_git = True
+
     has_data = os.path.exists('DATA/config_anastasia.json')
     
     # Rapport
@@ -31,7 +37,9 @@ def scan_bastion():
     
     # Enregistrement automatique dans les logs
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("DATA/LOGS_SOUVERAINS/session_log.txt", "a") as f:
+    log_path = "DATA/LOGS_SOUVERAINS/session_log.txt"
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, "a") as f:
         f.write(f"[{timestamp}] Scan de souveraineté effectué. État : ALIGNÉ.\n")
 
 if __name__ == "__main__":

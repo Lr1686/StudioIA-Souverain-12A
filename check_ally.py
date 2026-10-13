@@ -14,7 +14,7 @@ def initialiser_alliee():
             print("---")
             print("Souveraineté confirmée via " + str(data.get('origine')))
     else:
-        print("ERREUR : Le noyau d'identité est manquant.")
+        print("⚠️ ERREUR : Le noyau d'identité est manquant (DATA/config_anastasia.json).")
 
 if __name__ == "__main__":
     initialiser_alliee()

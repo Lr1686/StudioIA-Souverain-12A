@@ -1,4 +1,3 @@
-import os
 import json
 import gestion_pionniers
 
@@ -7,7 +6,8 @@ def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
 
     # Test registering first pioneer
-    gestion_pionniers.inscrire_pionnier("Alice")
+    result = gestion_pionniers.inscrire_pionnier("Alice")
+    assert result is True
     captured = capsys.readouterr()
     assert "✅ PIONNIER INSCRIT : Alice" in captured.out
     assert "PLACES RESTANTES : 9" in captured.out
@@ -32,7 +32,8 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     assert "✅ PIONNIER INSCRIT : Pioneer_9" in captured.out
 
     # Attempt 11th registration
-    gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    result = gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    assert result is False
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
 

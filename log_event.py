@@ -1,13 +1,17 @@
 import datetime
-import json
 import os
 
+LOG_PATH = "DATA/LOGS_SOUVERAINS/session_log.txt"
+
 def enregistrer_evenement(message):
-    log_path = "DATA/LOGS_SOUVERAINS/session_log.txt"
+    parent_dir = os.path.dirname(LOG_PATH)
+    if parent_dir:
+        os.makedirs(parent_dir, exist_ok=True)
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     entry = "[" + timestamp + "] " + message + "\n"
     
-    with open(log_path, "a") as f:
+    with open(LOG_PATH, "a") as f:
         f.write(entry)
     print("🔱 ÉVÉNEMENT GRAVÉ : " + message)
 

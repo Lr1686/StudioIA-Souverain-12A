@@ -9,6 +9,18 @@ MAX_PIONNIERS = 10
 MAX_NOM_LENGTH = 100
 
 def inscrire_pionnier(nom):
+    # Performance Optimization: Count lines directly instead of deserializing each JSON line
+    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
+    nb_pionniers = 0
+    if os.path.exists(DB_PATH):
+        with open(DB_PATH, "r") as f:
+            nb_pionniers = sum(1 for line in f if line.strip())
+
+    # Vérifier la limite
+    if nb_pionniers >= MAX_PIONNIERS:
+        print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
+        return
+
     # Security input validation & sanitization
     if not isinstance(nom, str):
         print("⚠️ ERREUR : Le nom doit être une chaîne de caractères.")
@@ -28,18 +40,6 @@ def inscrire_pionnier(nom):
         return False
 
     nom = nom_clean
-
-    # Performance Optimization: Count lines directly instead of deserializing each JSON line
-    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
-    nb_pionniers = 0
-    if os.path.exists(DB_PATH):
-        with open(DB_PATH, "r") as f:
-            nb_pionniers = sum(1 for line in f if line.strip())
-    
-    # Vérifier la limite
-    if nb_pionniers >= MAX_PIONNIERS:
-        print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
-        return
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
@@ -66,5 +66,13 @@ def inscrire_pionnier(nom):
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    nb_pionniers = 0
+    if os.path.exists(DB_PATH):
+        with open(DB_PATH, "r") as f:
+            nb_pionniers = sum(1 for line in f if line.strip())
+
+    if nb_pionniers >= MAX_PIONNIERS:
+        print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
+    else:
+        nom_saisie = input(f"Entrez le nom du pionnier ({nb_pionniers}/{MAX_PIONNIERS} places occupées) : ")
+        inscrire_pionnier(nom_saisie)

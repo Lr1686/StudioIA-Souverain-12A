@@ -31,10 +31,16 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "✅ PIONNIER INSCRIT : Pioneer_9" in captured.out
 
-    # Attempt 11th registration
+    # Attempt 11th registration with valid input
     gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
+
+    # Attempt 11th registration with invalid input to ensure capacity limit takes precedence
+    result = gestion_pionniers.inscrire_pionnier("   ")
+    captured = capsys.readouterr()
+    assert "⚠️ LIMITE ATTEINTE" in captured.out
+    assert "⚠️ ERREUR : Le nom du pionnier ne peut pas être vide." not in captured.out
 
 def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"

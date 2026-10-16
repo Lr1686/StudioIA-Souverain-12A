@@ -1,6 +1,4 @@
 import datetime
-import json
-import os
 
 def enregistrer_evenement(message):
     log_path = "DATA/LOGS_SOUVERAINS/session_log.txt"

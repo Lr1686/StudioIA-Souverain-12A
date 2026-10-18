@@ -1,12 +1,20 @@
+import datetime
 import json
 import os
 import secrets
-import datetime
 
 DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"
 MAX_PIONNIERS = 10
 
 MAX_NOM_LENGTH = 100
+
+
+def compter_pionniers():
+    if os.path.exists(DB_PATH):
+        with open(DB_PATH, "r") as f:
+            return sum(1 for line in f if line.strip())
+    return 0
+
 
 def inscrire_pionnier(nom):
     # Security input validation & sanitization
@@ -20,7 +28,9 @@ def inscrire_pionnier(nom):
         return False
 
     if len(nom_clean) > MAX_NOM_LENGTH:
-        print(f"⚠️ ERREUR : Le nom dépasse la longueur maximale autorisée ({MAX_NOM_LENGTH} caractères).")
+        print(
+            f"⚠️ ERREUR : Le nom dépasse la longueur maximale autorisée ({MAX_NOM_LENGTH} caractères)."
+        )
         return False
 
     if any(ord(c) < 32 or ord(c) == 127 for c in nom_clean):
@@ -29,17 +39,14 @@ def inscrire_pionnier(nom):
 
     nom = nom_clean
 
-    # Performance Optimization: Count lines directly instead of deserializing each JSON line
-    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
-    nb_pionniers = 0
-    if os.path.exists(DB_PATH):
-        with open(DB_PATH, "r") as f:
-            nb_pionniers = sum(1 for line in f if line.strip())
-    
+    nb_pionniers = compter_pionniers()
+
     # Vérifier la limite
     if nb_pionniers >= MAX_PIONNIERS:
-        print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
-        return
+        print(
+            f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises."
+        )
+        return False
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
@@ -47,12 +54,9 @@ def inscrire_pionnier(nom):
         "id": nb_pionniers + 1,
         "nom": nom,
         "cle_souveraine": f"ALPHA-{token}",
-        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    # Performance Optimization: Guard directory creation with os.path.exists check.
-    # Unconditional os.makedirs incurs filesystem stat overhead on every write, whereas checking existence
-    # first bypasses directory creation syscalls when the folder already exists (~4x speedup).
     parent_dir = os.path.dirname(DB_PATH)
     if parent_dir and not os.path.exists(parent_dir):
         os.makedirs(parent_dir, exist_ok=True)
@@ -60,11 +64,22 @@ def inscrire_pionnier(nom):
     # Sauvegarder
     with open(DB_PATH, "a") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
-    
+
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
+    return True
+
 
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    nb = compter_pionniers()
+    places_restantes = MAX_PIONNIERS - nb
+    print("--- [ GESTION DES PIONNIERS ] ---")
+    if places_restantes <= 0:
+        print(
+            f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises."
+        )
+    else:
+        print(f"📊 PLACES RESTANTES : {places_restantes}/{MAX_PIONNIERS}")
+        nom_saisie = input("👉 Entrez le nom du pionnier : ")
+        inscrire_pionnier(nom_saisie)

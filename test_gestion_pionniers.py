@@ -1,13 +1,14 @@
-import os
 import json
 import gestion_pionniers
+
 
 def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"
     monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
 
     # Test registering first pioneer
-    gestion_pionniers.inscrire_pionnier("Alice")
+    res = gestion_pionniers.inscrire_pionnier("Alice")
+    assert res is True
     captured = capsys.readouterr()
     assert "✅ PIONNIER INSCRIT : Alice" in captured.out
     assert "PLACES RESTANTES : 9" in captured.out
@@ -19,6 +20,7 @@ def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     assert entry["id"] == 1
     assert entry["nom"] == "Alice"
     assert entry["cle_souveraine"].startswith("ALPHA-")
+
 
 def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"
@@ -32,9 +34,11 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     assert "✅ PIONNIER INSCRIT : Pioneer_9" in captured.out
 
     # Attempt 11th registration
-    gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    res = gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    assert res is False
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
+
 
 def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"
@@ -63,3 +67,13 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+
+def test_compter_pionniers(tmp_path, monkeypatch):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    assert gestion_pionniers.compter_pionniers() == 0
+
+    gestion_pionniers.inscrire_pionnier("Bob")
+    assert gestion_pionniers.compter_pionniers() == 1

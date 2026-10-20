@@ -1,6 +1,7 @@
-import os
 import json
 import gestion_pionniers
+import log_event
+import scanner_12a
 
 def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"
@@ -63,3 +64,29 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_enregistrer_evenement_creates_dir_and_logs(tmp_path, monkeypatch, capsys):
+    log_dir = tmp_path / "DATA" / "LOGS_SOUVERAINS"
+    test_log = log_dir / "session_log.txt"
+
+    monkeypatch.chdir(tmp_path)
+    log_event.enregistrer_evenement("Test Event")
+
+    captured = capsys.readouterr()
+    assert "ÉVÉNEMENT GRAVÉ : Test Event" in captured.out
+    assert test_log.exists()
+    content = test_log.read_text()
+    assert "Test Event" in content
+
+def test_scan_bastion_creates_dir_and_logs(tmp_path, monkeypatch, capsys):
+    log_dir = tmp_path / "DATA" / "LOGS_SOUVERAINS"
+    test_log = log_dir / "session_log.txt"
+
+    monkeypatch.chdir(tmp_path)
+    scanner_12a.scan_bastion()
+
+    captured = capsys.readouterr()
+    assert "SCANNER DE SOUVERAINETÉ 12_ALPHA" in captured.out
+    assert test_log.exists()
+    content = test_log.read_text()
+    assert "Scan de souveraineté effectué. État :" in content

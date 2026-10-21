@@ -63,3 +63,23 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_inscrire_pionnier_prompt(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+
+    prompts = []
+    def mock_input(prompt):
+        prompts.append(prompt)
+        return "TestUser"
+
+    monkeypatch.setattr("builtins.input", mock_input)
+
+    # Execute main block with DB_PATH redirected to tmp_path
+    code = open("gestion_pionniers.py").read().replace(
+        'DB_PATH = "DATA/KNOWLEDGE_BASE/registre_pionniers.json"',
+        f'DB_PATH = "{test_db}"'
+    )
+    exec(compile(code, "gestion_pionniers.py", "exec"), {"__name__": "__main__"})
+
+    assert len(prompts) == 1
+    assert prompts[0] == "Entrez le nom du pionnier (1-100 caractères) : "

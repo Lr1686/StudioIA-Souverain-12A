@@ -65,6 +65,12 @@ def inscrire_pionnier(nom):
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 
+def main():
+    try:
+        nom_saisie = input("Entrez le nom du pionnier (ex: Ada Lovelace) : ")
+        inscrire_pionnier(nom_saisie)
+    except (KeyboardInterrupt, EOFError):
+        print("\n\n👋 Opération annulée.")
+
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    main()

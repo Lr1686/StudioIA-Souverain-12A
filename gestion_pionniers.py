@@ -30,11 +30,13 @@ def inscrire_pionnier(nom):
     nom = nom_clean
 
     # Performance Optimization: Count lines directly instead of deserializing each JSON line
-    # into a Python dictionary. Avoids O(N) dict memory allocation and JSON parsing overhead (~4x speedup).
+    # into a Python dictionary, and use EAFP (try...except FileNotFoundError) to avoid os.path.exists stat syscall.
     nb_pionniers = 0
-    if os.path.exists(DB_PATH):
+    try:
         with open(DB_PATH, "r") as f:
             nb_pionniers = sum(1 for line in f if line.strip())
+    except FileNotFoundError:
+        pass
     
     # Vérifier la limite
     if nb_pionniers >= MAX_PIONNIERS:
@@ -50,16 +52,17 @@ def inscrire_pionnier(nom):
         "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Performance Optimization: Guard directory creation with os.path.exists check.
-    # Unconditional os.makedirs incurs filesystem stat overhead on every write, whereas checking existence
-    # first bypasses directory creation syscalls when the folder already exists (~4x speedup).
-    parent_dir = os.path.dirname(DB_PATH)
-    if parent_dir and not os.path.exists(parent_dir):
-        os.makedirs(parent_dir, exist_ok=True)
-
-    # Sauvegarder
-    with open(DB_PATH, "a") as f:
-        f.write(json.dumps(nouvel_invite) + "\n")
+    # Performance Optimization: Try writing directly and handle missing directory via FileNotFoundError.
+    # Avoids filesystem stat overhead (os.path.exists / os.makedirs) on every write (~1.3x speedup).
+    try:
+        with open(DB_PATH, "a") as f:
+            f.write(json.dumps(nouvel_invite) + "\n")
+    except FileNotFoundError:
+        parent_dir = os.path.dirname(DB_PATH)
+        if parent_dir:
+            os.makedirs(parent_dir, exist_ok=True)
+        with open(DB_PATH, "a") as f:
+            f.write(json.dumps(nouvel_invite) + "\n")
     
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")

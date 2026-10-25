@@ -66,5 +66,8 @@ def inscrire_pionnier(nom):
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
 
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    try:
+        nom_saisie = input("Entrez le nom du pionnier : ")
+        inscrire_pionnier(nom_saisie)
+    except (KeyboardInterrupt, EOFError):
+        print("\n👋 Inscription annulée.")

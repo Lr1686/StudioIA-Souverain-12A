@@ -1,4 +1,3 @@
-import os
 import json
 import gestion_pionniers
 
@@ -63,3 +62,15 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+
+def test_inscrire_pionnier_output_formatting(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    res = gestion_pionniers.inscrire_pionnier("Bob")
+    assert res is True
+    captured = capsys.readouterr()
+    assert "----------------------------------------" in captured.out
+    assert "✅ PIONNIER INSCRIT : Bob" in captured.out
+    assert "🔑 SA CLÉ          : ALPHA-" in captured.out

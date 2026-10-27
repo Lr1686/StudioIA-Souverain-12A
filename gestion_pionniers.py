@@ -39,7 +39,7 @@ def inscrire_pionnier(nom):
     # Vérifier la limite
     if nb_pionniers >= MAX_PIONNIERS:
         print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
-        return
+        return False
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
@@ -61,10 +61,13 @@ def inscrire_pionnier(nom):
     with open(DB_PATH, "a") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
     
+    print("----------------------------------------")
     print(f"✅ PIONNIER INSCRIT : {nom}")
-    print(f"🔑 SA CLÉ : ALPHA-{token}")
+    print(f"🔑 SA CLÉ          : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
+    print("----------------------------------------")
+    return True
 
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
+    nom_saisie = input("✍️  Entrez le nom du pionnier (ex: Alice) : ")
     inscrire_pionnier(nom_saisie)

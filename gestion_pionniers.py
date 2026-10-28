@@ -39,7 +39,7 @@ def inscrire_pionnier(nom):
     # Vérifier la limite
     if nb_pionniers >= MAX_PIONNIERS:
         print(f"⚠️ LIMITE ATTEINTE : Les {MAX_PIONNIERS} places de pionniers sont déjà prises.")
-        return
+        return False
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
@@ -64,7 +64,14 @@ def inscrire_pionnier(nom):
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
     print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
+    return True
+
+def main():
+    try:
+        nom_saisie = input("Entrez le nom du pionnier : ")
+        inscrire_pionnier(nom_saisie)
+    except (KeyboardInterrupt, EOFError):
+        print("\n⚡ Opération annulée par l'utilisateur.")
 
 if __name__ == "__main__":
-    nom_saisie = input("Entrez le nom du pionnier : ")
-    inscrire_pionnier(nom_saisie)
+    main()

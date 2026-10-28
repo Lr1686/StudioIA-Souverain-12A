@@ -32,7 +32,8 @@ def test_inscrire_pionnier_max_limit(tmp_path, monkeypatch, capsys):
     assert "✅ PIONNIER INSCRIT : Pioneer_9" in captured.out
 
     # Attempt 11th registration
-    gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    res = gestion_pionniers.inscrire_pionnier("Excess_Pioneer")
+    assert res is False
     captured = capsys.readouterr()
     assert "⚠️ LIMITE ATTEINTE" in captured.out
 
@@ -63,3 +64,15 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_main_keyboard_interrupt(monkeypatch, capsys):
+    def mock_input(prompt):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr("builtins.input", mock_input)
+
+    # Execute main function directly from module
+    gestion_pionniers.main()
+
+    captured = capsys.readouterr()
+    assert "⚡ Opération annulée par l'utilisateur." in captured.out

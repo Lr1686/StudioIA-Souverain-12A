@@ -7,7 +7,8 @@ def scan_bastion():
     
     # 1. Analyse Matérielle
     systeme = platform.system()
-    version = platform.mac_ver()[0]
+    # Performance Optimization: mac_ver() performs unnecessary system calls/subprocess queries on non-macOS systems.
+    version = platform.mac_ver()[0] if systeme == "Darwin" else ""
     machine = platform.machine()
     
     # 2. Analyse de l'Espace de Travail
@@ -31,7 +32,12 @@ def scan_bastion():
     
     # Enregistrement automatique dans les logs
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("DATA/LOGS_SOUVERAINS/session_log.txt", "a") as f:
+    log_dir = "DATA/LOGS_SOUVERAINS"
+    # Performance & Reliability: Check if log directory exists before writing to avoid FileNotFoundError / unnecessary syscalls.
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+
+    with open(os.path.join(log_dir, "session_log.txt"), "a") as f:
         f.write(f"[{timestamp}] Scan de souveraineté effectué. État : ALIGNÉ.\n")
 
 if __name__ == "__main__":

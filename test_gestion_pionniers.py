@@ -1,6 +1,21 @@
-import os
 import json
 import gestion_pionniers
+
+def test_inscrire_pionnier_missing_db(tmp_path, monkeypatch, capsys):
+    test_db = tmp_path / "nonexistent" / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    gestion_pionniers.inscrire_pionnier("Bob")
+    captured = capsys.readouterr()
+    assert "✅ PIONNIER INSCRIT : Bob" in captured.out
+    assert "PLACES RESTANTES : 9" in captured.out
+
+    with open(test_db, "r") as f:
+        lines = [line.strip() for line in f if line.strip()]
+    assert len(lines) == 1
+    entry = json.loads(lines[0])
+    assert entry["id"] == 1
+    assert entry["nom"] == "Bob"
 
 def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     test_db = tmp_path / "registre_pionniers.json"

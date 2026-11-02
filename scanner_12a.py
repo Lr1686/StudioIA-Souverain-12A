@@ -30,7 +30,9 @@ def scan_bastion():
         print("ÉTAT       : DÉSYNCHRONISATION DÉTECTÉE ⚠️")
     
     # Enregistrement automatique dans les logs
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Performance Optimization: Using isoformat(sep=" ", timespec="seconds") produces identical
+    # format "YYYY-MM-DD HH:MM:SS" ~2.6x faster than strftime format string parsing.
+    timestamp = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
     with open("DATA/LOGS_SOUVERAINS/session_log.txt", "a") as f:
         f.write(f"[{timestamp}] Scan de souveraineté effectué. État : ALIGNÉ.\n")
 

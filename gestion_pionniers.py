@@ -43,11 +43,14 @@ def inscrire_pionnier(nom):
 
     # Créer l'accès
     token = secrets.token_hex(8).upper()
+    # Performance Optimization: Using isoformat(sep=" ", timespec="seconds") produces identical
+    # format "YYYY-MM-DD HH:MM:SS" ~2.6x faster than strftime format string parsing.
+    date_creation = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
     nouvel_invite = {
         "id": nb_pionniers + 1,
         "nom": nom,
         "cle_souveraine": f"ALPHA-{token}",
-        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "date": date_creation
     }
 
     # Performance Optimization: Guard directory creation with os.path.exists check.

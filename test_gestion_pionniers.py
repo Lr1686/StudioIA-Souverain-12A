@@ -10,11 +10,17 @@ def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     gestion_pionniers.inscrire_pionnier("Alice")
     captured = capsys.readouterr()
     assert "✅ PIONNIER INSCRIT : Alice" in captured.out
-    assert "PLACES RESTANTES : 9" in captured.out
+    assert "PLACES RESTANTES : 9/10 [■□□□□□□□□□]" in captured.out
+
+    # Test registering second pioneer updates the progress bar
+    gestion_pionniers.inscrire_pionnier("Bob")
+    captured = capsys.readouterr()
+    assert "✅ PIONNIER INSCRIT : Bob" in captured.out
+    assert "PLACES RESTANTES : 8/10 [■■□□□□□□□□]" in captured.out
 
     with open(test_db, "r") as f:
         lines = [line.strip() for line in f if line.strip()]
-    assert len(lines) == 1
+    assert len(lines) == 2
     entry = json.loads(lines[0])
     assert entry["id"] == 1
     assert entry["nom"] == "Alice"

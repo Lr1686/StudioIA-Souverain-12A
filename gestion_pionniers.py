@@ -64,9 +64,13 @@ def inscrire_pionnier(nom):
     with open(DB_PATH, "a") as f:
         f.write(json.dumps(nouvel_invite) + "\n")
     
+    inscrits = nb_pionniers + 1
+    restantes = MAX_PIONNIERS - inscrits
+    jauge = "■" * inscrits + "□" * restantes
+
     print(f"✅ PIONNIER INSCRIT : {nom}")
     print(f"🔑 SA CLÉ : ALPHA-{token}")
-    print(f"📊 PLACES RESTANTES : {MAX_PIONNIERS - (nb_pionniers + 1)}")
+    print(f"📊 PLACES RESTANTES : {restantes}/{MAX_PIONNIERS} [{jauge}]")
 
 if __name__ == "__main__":
     nom_saisie = input("Entrez le nom du pionnier : ")

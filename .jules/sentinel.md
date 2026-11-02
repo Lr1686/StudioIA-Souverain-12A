@@ -1,0 +1,4 @@
+## 2026-11-02 - Log Injection and Forging via Unsanitized Event Logging
+**Vulnerability:** In `log_event.py`, `enregistrer_evenement` directly appended arbitrary user-provided strings onto log lines without input type checking, length constraints, or control character validation. Attackers could inject newline characters (`\n`, `\r`) to fabricate fake log entries or inject terminal escape/control characters to corrupt session audit logs.
+**Learning:** File-based text logging functions that accept external strings are susceptible to CRLF log injection unless inputs are strictly validated against control characters (`< 32` or `== 127`), stripped of surrounding whitespace, and bounded by maximum lengths.
+**Prevention:** Always validate and sanitize input strings before formatting into line-oriented log files by disallowing newlines, carriage returns, and control characters, and setting maximum length limits.

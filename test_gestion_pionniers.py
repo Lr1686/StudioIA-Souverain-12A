@@ -10,7 +10,7 @@ def test_inscrire_pionnier(tmp_path, monkeypatch, capsys):
     gestion_pionniers.inscrire_pionnier("Alice")
     captured = capsys.readouterr()
     assert "✅ PIONNIER INSCRIT : Alice" in captured.out
-    assert "PLACES RESTANTES : 9" in captured.out
+    assert "PLACES RESTANTES : 9/10 [■□□□□□□□□□]" in captured.out
 
     with open(test_db, "r") as f:
         lines = [line.strip() for line in f if line.strip()]

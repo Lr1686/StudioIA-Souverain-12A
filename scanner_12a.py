@@ -6,8 +6,8 @@ def scan_bastion():
     print("--- [ SCANNER DE SOUVERAINETÉ 12_ALPHA ] ---")
     
     # 1. Analyse Matérielle
-    systeme = platform.system()
-    version = platform.mac_ver()[0]
+    mac_ver = platform.mac_ver()[0]
+    os_display = f"macOS {mac_ver}" if mac_ver else f"{platform.system()} {platform.release()}".strip()
     machine = platform.machine()
     
     # 2. Analyse de l'Espace de Travail
@@ -20,14 +20,18 @@ def scan_bastion():
     
     # Rapport
     print(f"BATAILLON  : MacBook Pro ({machine})")
-    print(f"OS VERSION : macOS {version}")
+    print(f"OS VERSION : {os_display}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
     else:
         print("ÉTAT       : DÉSYNCHRONISATION DÉTECTÉE ⚠️")
+        if not has_git:
+            print("  ↳ Manquant : Dépôt Git (.git) introuvable")
+        if not has_data:
+            print("  ↳ Manquant : Configuration (DATA/config_anastasia.json) introuvable")
     
     # Enregistrement automatique dans les logs
     # Performance Optimization: Using isoformat(sep=" ", timespec="seconds") produces identical

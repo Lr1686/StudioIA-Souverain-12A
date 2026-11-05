@@ -1,4 +1,3 @@
-import os
 import json
 import gestion_pionniers
 
@@ -63,3 +62,14 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_inscrire_pionnier_creates_missing_parent_directory(tmp_path, monkeypatch, capsys):
+    nested_dir = tmp_path / "deeply" / "nested" / "dir"
+    test_db = nested_dir / "registre_pionniers.json"
+    monkeypatch.setattr(gestion_pionniers, "DB_PATH", str(test_db))
+
+    assert not nested_dir.exists()
+    gestion_pionniers.inscrire_pionnier("Bob")
+    captured = capsys.readouterr()
+    assert "✅ PIONNIER INSCRIT : Bob" in captured.out
+    assert test_db.exists()

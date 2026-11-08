@@ -1,0 +1,5 @@
+## 2026-04-13 - Log Injection / CRLF Forgery Prevention in Sovereign Audit Trail
+
+**Vulnerability:** In `log_event.py`, `enregistrer_evenement` directly appended arbitrary caller-supplied messages into `DATA/LOGS_SOUVERAINS/session_log.txt` using newline concatenation without validating input type, length, or sanitizing control characters. An attacker or unsanitized input could inject newline (`\n`) or carriage return (`\r`) characters to forge fake timestamped log entries (CWE-117: Improper Output Handling for Logs), deceiving audit tools or concealing actions.
+**Learning:** Text-based event logs formatted line-by-line (`[timestamp] message\n`) rely on strict single-line invariants. In absence of structured logging libraries (e.g. JSON-formatted logs), any unvalidated string can corrupt the log stream's integrity.
+**Prevention:** Enforce input type checking, length constraints, and explicit rejection of ASCII control characters (`ord(c) < 32 or ord(c) == 127`), ensuring single-line log entries cannot forge multi-line session events.

@@ -7,7 +7,8 @@ def scan_bastion():
     
     # 1. Analyse Matérielle
     systeme = platform.system()
-    version = platform.mac_ver()[0]
+    mac_version = platform.mac_ver()[0]
+    os_display = f"macOS {mac_version}" if mac_version else f"{systeme} ({platform.release()})"
     machine = platform.machine()
     
     # 2. Analyse de l'Espace de Travail
@@ -20,9 +21,12 @@ def scan_bastion():
     
     # Rapport
     print(f"BATAILLON  : MacBook Pro ({machine})")
-    print(f"OS VERSION : macOS {version}")
+    print(f"OS VERSION : {os_display}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
+    print(f"SCEAU GIT  : {'ALIGNÉ ✅' if has_git else 'MANQUANT ⚠️'}")
+    print(f"SCEAU DATA : {'ALIGNÉ ✅' if has_data else 'MANQUANT ⚠️'}")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")

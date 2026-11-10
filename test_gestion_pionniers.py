@@ -52,11 +52,12 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom dépasse la longueur maximale autorisée" in captured.out
 
-    # Name containing control characters / newlines
-    result = gestion_pionniers.inscrire_pionnier("Alice\nBob")
-    assert result is False
-    captured = capsys.readouterr()
-    assert "⚠️ ERREUR : Le nom contient des caractères non autorisés." in captured.out
+    # Name containing control characters / newlines / non-printable chars
+    for invalid_name in ["Alice\nBob", "Alice\tBob", "Alice\rBob", "Alice\x00Bob"]:
+        result = gestion_pionniers.inscrire_pionnier(invalid_name)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "⚠️ ERREUR : Le nom contient des caractères non autorisés." in captured.out
 
     # Non-string input
     result = gestion_pionniers.inscrire_pionnier(12345)

@@ -8,22 +8,26 @@ def scan_bastion():
     # 1. Analyse Matérielle
     systeme = platform.system()
     version = platform.mac_ver()[0]
+    os_display = f"macOS {version}" if version else systeme
     machine = platform.machine()
-    
+
     # 2. Analyse de l'Espace de Travail
     fichiers = os.listdir('.')
     nb_fichiers = len(fichiers)
-    
+
     # 3. Vérification des Sceaux
     has_git = os.path.exists('.git')
     has_data = os.path.exists('DATA/config_anastasia.json')
-    
+
     # Rapport
     print(f"BATAILLON  : MacBook Pro ({machine})")
-    print(f"OS VERSION : macOS {version}")
+    print(f"OS VERSION : {os_display}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
-    
+    print("---")
+    print(f"SCEAU GIT  : {'ALIGNÉ ✅' if has_git else 'MANQUANT (.git) ❌'}")
+    print(f"SCEAU DATA : {'ALIGNÉ ✅' if has_data else 'MANQUANT (config_anastasia.json) ❌'}")
+    print("---")
+
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")
     else:

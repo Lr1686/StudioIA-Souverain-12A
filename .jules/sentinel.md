@@ -1,0 +1,4 @@
+## 2026-11-11 - Log Injection (CWE-117) and Input Sanitization in Flat File Logging
+**Vulnerability:** `log_event.py` accepted raw input strings and appended them directly into `DATA/LOGS_SOUVERAINS/session_log.txt` without sanitizing line-feed/carriage-return (`\n`, `\r`) or control characters. Attackers could forge log records with fake timestamps or corrupt audit trail integrity (CWE-117).
+**Learning:** File-based log streams that write single-line entries must explicitly validate message type, reject empty inputs, and sanitize or replace CRLF and ASCII control characters to maintain log record boundaries.
+**Prevention:** Sanitize control characters and line breaks into safe spaces (`ord(c) < 32 or ord(c) == 127`), validate input string types, and guard file appends with directory existence checks.

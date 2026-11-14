@@ -7,14 +7,19 @@ def initialiser_alliee():
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             data = json.load(f)
+            alias = data.get('alias', 'Inconnu')
+            statut = data.get('statut', 'Inconnu')
+            frequence = data.get('frequence', 'Inconnue')
+            origine = data.get('origine', 'Inconnue')
+
             print("--- [ INITIALISATION ALLIÉE ] ---")
-            print("ALIAS      : " + str(data.get('alias')))
-            print("STATUT     : " + str(data.get('statut')))
-            print("FRÉQUENCE  : " + str(data.get('frequence')))
+            print(f"ALIAS      : {alias}")
+            print(f"STATUT     : {statut}")
+            print(f"FRÉQUENCE  : {frequence}")
             print("---")
-            print("Souveraineté confirmée via " + str(data.get('origine')))
+            print(f"Souveraineté confirmée via {origine}")
     else:
-        print("ERREUR : Le noyau d'identité est manquant.")
+        print(f"⚠️ ERREUR : Le noyau d'identité est manquant ({config_path}).")
 
 if __name__ == "__main__":
     initialiser_alliee()

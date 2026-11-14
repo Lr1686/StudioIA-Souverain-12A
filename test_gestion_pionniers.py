@@ -63,3 +63,21 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_main_interactive(monkeypatch, capsys):
+    monkeypatch.setattr("builtins.input", lambda _: "  Grace Hopper  ")
+    called_with = []
+    monkeypatch.setattr(gestion_pionniers, "inscrire_pionnier", lambda nom: called_with.append(nom))
+
+    gestion_pionniers.main()
+    assert called_with == ["  Grace Hopper  "]
+
+def test_main_keyboard_interrupt(monkeypatch, capsys):
+    def raise_interrupt(_):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr("builtins.input", raise_interrupt)
+    gestion_pionniers.main()
+
+    captured = capsys.readouterr()
+    assert "👋 Opération annulée." in captured.out

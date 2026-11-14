@@ -6,7 +6,6 @@ def scan_bastion():
     print("--- [ SCANNER DE SOUVERAINETÉ 12_ALPHA ] ---")
     
     # 1. Analyse Matérielle
-    systeme = platform.system()
     version = platform.mac_ver()[0]
     machine = platform.machine()
     
@@ -22,7 +21,7 @@ def scan_bastion():
     print(f"BATAILLON  : MacBook Pro ({machine})")
     print(f"OS VERSION : macOS {version}")
     print(f"CAPACITÉ   : {nb_fichiers} artefacts détectés")
-    print(f"---")
+    print("---")
     
     if has_git and has_data:
         print("ÉTAT       : BASTION VERROUILLÉ ET ALIGNÉ ✅")

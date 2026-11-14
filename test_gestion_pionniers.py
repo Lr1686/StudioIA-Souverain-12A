@@ -63,3 +63,24 @@ def test_inscrire_pionnier_invalid_input(tmp_path, monkeypatch, capsys):
     assert result is False
     captured = capsys.readouterr()
     assert "⚠️ ERREUR : Le nom doit être une chaîne de caractères." in captured.out
+
+def test_main_cli_interrupt_handling(monkeypatch, capsys):
+    import runpy
+
+    # Test KeyboardInterrupt handling
+    def mock_input_interrupt(prompt):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr("builtins.input", mock_input_interrupt)
+    runpy.run_module("gestion_pionniers", run_name="__main__")
+    captured = capsys.readouterr()
+    assert "👋 Inscription annulée." in captured.out
+
+    # Test EOFError handling
+    def mock_input_eof(prompt):
+        raise EOFError()
+
+    monkeypatch.setattr("builtins.input", mock_input_eof)
+    runpy.run_module("gestion_pionniers", run_name="__main__")
+    captured = capsys.readouterr()
+    assert "👋 Inscription annulée." in captured.out
